@@ -2,6 +2,11 @@
 
 All notable user-facing changes to Codex Deck will be documented here.
 
+## [0.1.27] - 2026-07-14
+
+- Clarified that account Today cost and token totals are official statistics that may lag behind current usage.
+- Show missing current-day data as pending with its latest reporting date instead of implying a real-time value.
+
 ## [0.1.26] - 2026-07-14
 
 - Added the installed app version beside Codex Deck in the main title bar so builds can be identified directly from the UI.

@@ -1,7 +1,7 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "Codex Deck",
-  "version": "0.1.26",
+  "version": "0.1.27",
   "identifier": "app.codexdeck.desktop",
   "build": {
     "frontendDist": "../dist",

@@ -1,6 +1,6 @@
 {
   "name": "codex-deck",
-  "version": "0.1.26",
+  "version": "0.1.27",
   "private": true,
   "description": "Lightweight local companion for managing multiple Codex accounts and monitoring usage",
   "homepage": "https://github.com/IReneZL/codex-deck#readme",

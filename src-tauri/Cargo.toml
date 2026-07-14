@@ -1,6 +1,6 @@
 [package]
 name = "codex-deck"
-version = "0.1.26"
+version = "0.1.27"
 description = "A lightweight local companion for Codex accounts and usage"
 authors = ["Codex Deck contributors"]
 license = "MIT"
