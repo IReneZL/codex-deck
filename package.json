@@ -2,7 +2,7 @@
   "name": "codex-deck",
   "version": "0.1.23",
   "private": true,
-  "description": "Lightweight Windows-first Codex multi-account controller and usage dashboard",
+  "description": "Lightweight local companion for managing multiple Codex accounts and monitoring usage",
   "homepage": "https://github.com/IReneZL/codex-deck#readme",
   "repository": {
     "type": "git",

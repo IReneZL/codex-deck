@@ -6,7 +6,7 @@
 
 轻量、Windows 优先的 Codex 多账号与用量控制台。Codex Deck 将账号切换、七天额度、Token 与缓存统计，以及置顶状态栏放在一个本地桌面应用中。
 
-A lightweight, Windows-first local companion for switching between Codex accounts, checking quota and token usage, and keeping a compact always-on-top status bar.
+A lightweight local companion for managing multiple Codex accounts, monitoring quota and token usage, and keeping a compact always-on-top status bar.
 
 > [!IMPORTANT]
 > Codex Deck is an independent community project. It is not affiliated with, endorsed by, or supported by OpenAI. ChatGPT and Codex are trademarks of their respective owners.

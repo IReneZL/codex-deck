@@ -8,7 +8,7 @@ When implementing from a selected generated mock, treat that image as the source
 
 ## Codex Deck product decisions
 
-- The prototype is a lightweight Windows-first Codex multi-account controller named Codex Deck.
+- The prototype is a lightweight local Codex multi-account controller named Codex Deck. Windows is the currently supported platform, not part of the product positioning.
 - Keep the active account pinned first; preserve addition order for all remaining accounts. Clicking another account previews it, while a separate button performs the switch.
 - If Codex is running, closing it or switching accounts requires a confirmation dialog that names the running process count and warns about unsaved work.
 - The collapsed form is a draggable, always-on-top-style status bar showing the active account, Codex state, and current quota.

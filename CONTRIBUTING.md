@@ -24,9 +24,8 @@ cargo test --manifest-path src-tauri/Cargo.toml
 npm run desktop:build
 ```
 
-Keep changes small and focused. Preserve the local-only privacy model, DPAPI credential protection, bilingual UI, and lightweight Windows-first behavior. New production dependencies should be justified in the pull request.
+Keep changes small and focused. Preserve the local-only privacy model, DPAPI credential protection, bilingual UI, and lightweight behavior. New production dependencies should be justified in the pull request.
 
 ## Pull requests
 
 Describe what changed, why it is needed, how it was tested, and any remaining risk. UI changes should include redacted before/after captures. Security vulnerabilities must follow [SECURITY.md](SECURITY.md) instead of a public pull request.
-
