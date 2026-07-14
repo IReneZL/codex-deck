@@ -1,6 +1,6 @@
 {
   "name": "codex-deck",
-  "version": "0.1.24",
+  "version": "0.1.25",
   "private": true,
   "description": "Lightweight local companion for managing multiple Codex accounts and monitoring usage",
   "homepage": "https://github.com/IReneZL/codex-deck#readme",
@@ -17,7 +17,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node --test scripts/account-sort.test.mjs scripts/api-cost.test.mjs scripts/codex-bridge.test.mjs scripts/local-today-observer.test.mjs scripts/thread-status.test.mjs scripts/usage-metrics.test.mjs",
+    "test": "node --test scripts/account-sort.test.mjs scripts/api-cost.test.mjs scripts/codex-bridge.test.mjs scripts/thread-status.test.mjs scripts/usage-metrics.test.mjs",
     "tauri": "tauri",
     "desktop:dev": "tauri dev",
     "desktop:build": "tauri build"

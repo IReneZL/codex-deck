@@ -41,15 +41,13 @@ import {
   startNativeWindowDrag,
   switchNativeCodexAccount,
 } from "./desktop.js";
-import { dailyUsageTotals, reportingDate } from "../shared/usage-metrics.mjs";
+import { dailyUsageTotals, reportedTodayTokens, reportingDate } from "../shared/usage-metrics.mjs";
 import { sortAccounts } from "../shared/account-sort.mjs";
-import { updateLocalTodayObserver } from "../shared/local-today-observer.mjs";
 
 const initialAccounts = [];
 
 const accountSortStorageKey = "codex-deck-account-sort-v1";
 const languageStorageKey = "codex-deck-language-v1";
-const localTodayStorageKey = "codex-deck-local-today-v2";
 const monthlyPricingBasisStorageKey = "codex-deck-monthly-pricing-basis-v1";
 const themeStorageKey = "codex-deck-theme-v1";
 const windowCloseStorageKey = "codex-deck-window-close-action-v2";
@@ -89,7 +87,7 @@ const copy = {
     cachedInput: "本机缓存输入",
     uncachedInput: "本机未缓存输入",
     statsAsOf: (date) => `数据更新至 ${date || "上一统计日"}`,
-    localTodayShort: "今日增量 · 仅包含本机已记录用量",
+    officialToday: (updatedAt) => `官方统计${updatedAt ? ` · ${updatedAt}` : " · 可能延迟"}`,
     tokenTrend: "Token 使用趋势（30 天）",
     totalTokens: "总 Token",
     average: "7 日平均",
@@ -182,7 +180,7 @@ const copy = {
     cachedInput: "Local cached input",
     uncachedInput: "Local uncached input",
     statsAsOf: (date) => `Data updated through ${date || "the previous reporting day"}`,
-    localTodayShort: "Today's increment · locally recorded usage only",
+    officialToday: (updatedAt) => `Official${updatedAt ? ` · ${updatedAt}` : " · may lag"}`,
     tokenTrend: "Token usage · 30 days",
     totalTokens: "Total tokens",
     average: "7-day average",
@@ -307,7 +305,19 @@ function modelUsageFromLocal(localUsage) {
   });
 }
 
-function accountFromSnapshot(account, observedTodayTokens = 0, pricingRate = null) {
+function formatUsageUpdatedAt(value, lang) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return new Intl.DateTimeFormat(lang === "zh" ? "zh-CN" : "en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+}
+
+function accountFromSnapshot(account, pricingRate = null, lang = "en") {
   const usageTotals = dailyUsageTotals(account.dailyUsage);
   const statsAsOf = usageTotals.latestDate || account.statsAsOf;
   const series = chartSeries(account.dailyUsage, reportingDate(statsAsOf));
@@ -318,9 +328,7 @@ function accountFromSnapshot(account, observedTodayTokens = 0, pricingRate = nul
   const localInput = Number(localUsage?.inputTokens) || 0;
   const localCached = Number(localUsage?.cachedInputTokens) || 0;
   const cacheReuse = localInput > 0 ? Math.round((localCached / localInput) * 100) : null;
-  const liveToday = Number(account.todayTokens) > 0 ? Number(account.todayTokens) : null;
-  const localToday = Math.max(0, Number(observedTodayTokens) || 0);
-  const todayTokens = usageTotals.hasToday ? usageTotals.today : liveToday || localToday || null;
+  const todayTokens = reportedTodayTokens(account.dailyUsage);
   const monthTokens = account.dailyUsage?.length ? usageTotals.month : Number(account.monthTokens);
   return {
     id: account.id,
@@ -334,7 +342,7 @@ function accountFromSnapshot(account, observedTodayTokens = 0, pricingRate = nul
     todayTokens: formatTokens(todayTokens),
     monthTokens: formatTokens(monthTokens),
     todayPending: todayTokens == null,
-    todayLocal: !usageTotals.hasToday && liveToday == null && localToday > 0,
+    usageUpdatedAt: formatUsageUpdatedAt(account.statsGeneratedAt, lang),
     statsAsOf,
     cacheReuse,
     cachedInput: localUsage ? formatTokens(localCached) : null,
@@ -345,7 +353,7 @@ function accountFromSnapshot(account, observedTodayTokens = 0, pricingRate = nul
   };
 }
 
-function accountFromStored(account, localUsage, observedTodayTokens = 0, pricingRate = null) {
+function accountFromStored(account, localUsage, pricingRate = null, lang = "en") {
   const label = account.name || account.email?.split("@", 1)[0] || "ChatGPT";
   const plan = account.plan ? account.plan.charAt(0).toUpperCase() + account.plan.slice(1) : "—";
   const usageTotals = dailyUsageTotals(account.dailyUsage);
@@ -354,8 +362,7 @@ function accountFromStored(account, localUsage, observedTodayTokens = 0, pricing
   const localInput = Number(localUsage?.inputTokens) || 0;
   const localCached = Number(localUsage?.cachedInputTokens) || 0;
   const cacheReuse = localInput > 0 ? Math.round((localCached / localInput) * 100) : null;
-  const localToday = Math.max(0, Number(observedTodayTokens) || 0);
-  const todayTokens = usageTotals.hasToday ? usageTotals.today : localToday || null;
+  const todayTokens = reportedTodayTokens(account.dailyUsage);
   return {
     id: account.id,
     name: { zh: label, en: label },
@@ -368,7 +375,7 @@ function accountFromStored(account, localUsage, observedTodayTokens = 0, pricing
     todayTokens: formatTokens(todayTokens),
     monthTokens: account.dailyUsage?.length ? formatTokens(usageTotals.month) : "—",
     todayPending: todayTokens == null,
-    todayLocal: !usageTotals.hasToday && localToday > 0,
+    usageUpdatedAt: formatUsageUpdatedAt(account.statsGeneratedAt, lang),
     statsAsOf,
     cacheReuse,
     cachedInput: localUsage ? formatTokens(localCached) : null,
@@ -641,13 +648,6 @@ export function App() {
   });
   const [barPosition, setBarPosition] = useState({ x: 0, y: 0 });
   const dragRef = useRef(null);
-  const localTodayObserverRef = useRef((() => {
-    try {
-      return JSON.parse(window.localStorage.getItem(localTodayStorageKey) || "null");
-    } catch {
-      return null;
-    }
-  })());
   const monthlyPricingBasisRef = useRef((() => {
     try {
       return JSON.parse(window.localStorage.getItem(monthlyPricingBasisStorageKey) || "{}");
@@ -691,13 +691,6 @@ export function App() {
     if (announce) setRefreshing(true);
     try {
       const snapshot = await readCodexSnapshot();
-      const nextLocalToday = updateLocalTodayObserver(
-        localTodayObserverRef.current,
-        snapshot.rolloutTokenCounters,
-        snapshot.activeAccountId,
-      );
-      localTodayObserverRef.current = nextLocalToday;
-      window.localStorage.setItem(localTodayStorageKey, JSON.stringify(nextLocalToday));
       const snapshotSignature = JSON.stringify({
         account: snapshot.account,
         accounts: snapshot.accounts,
@@ -727,15 +720,16 @@ export function App() {
       const storedItems = storedAccounts.map((account) => {
         const pricingRate = pricingRateFor(account.id);
         if (!activeStored || account.id !== activeStored.id || !snapshot.account) {
-          return accountFromStored(account, snapshot.localUsage, nextLocalToday.accounts?.[account.id], pricingRate);
+          return accountFromStored(account, snapshot.localUsage, pricingRate, lang);
         }
         const liveAccount = accountFromSnapshot({
           ...snapshot.account,
           id: account.id,
           dailyUsage: account.dailyUsage?.length ? account.dailyUsage : snapshot.account.dailyUsage,
           statsAsOf: account.statsAsOf,
+          statsGeneratedAt: account.statsGeneratedAt,
           localUsage: snapshot.localUsage,
-        }, nextLocalToday.accounts?.[account.id], pricingRate);
+        }, pricingRate, lang);
         liveAccount.name = { zh: account.name, en: account.name };
         return liveAccount;
       });
@@ -1287,7 +1281,7 @@ export function App() {
               <div className="usage-stat">
                 <span>{t.today}</span>
                 <strong title={selectedAccount.todayCost == null ? t.metricUnavailable : undefined}>{selectedAccount.todayCost ?? "—"}</strong>
-                {(selectedAccount.todayPending || selectedAccount.todayLocal) && <small>{selectedAccount.todayLocal ? t.localTodayShort : t.statsAsOf(selectedAccount.statsAsOf)}</small>}
+                <small>{selectedAccount.todayPending ? t.statsAsOf(selectedAccount.statsAsOf) : t.officialToday(selectedAccount.usageUpdatedAt)}</small>
               </div>
               <div className="usage-stat">
                 <span>{t.month}</span>
@@ -1296,7 +1290,7 @@ export function App() {
               <div className="usage-stat">
                 <span>{t.todayToken}</span>
                 <strong>{selectedAccount.todayTokens}</strong>
-                {(selectedAccount.todayPending || selectedAccount.todayLocal) && <small>{selectedAccount.todayLocal ? t.localTodayShort : t.statsAsOf(selectedAccount.statsAsOf)}</small>}
+                <small>{selectedAccount.todayPending ? t.statsAsOf(selectedAccount.statsAsOf) : t.officialToday(selectedAccount.usageUpdatedAt)}</small>
               </div>
               <div className="usage-stat">
                 <span>{t.monthToken}</span>

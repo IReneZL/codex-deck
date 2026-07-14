@@ -164,6 +164,7 @@ struct AccountUsageSnapshot {
     plan: Option<String>,
     daily_usage: Vec<AccountDailyUsage>,
     stats_as_of: Option<String>,
+    stats_generated_at: Option<String>,
 }
 
 #[derive(Clone, Serialize)]
@@ -251,6 +252,7 @@ struct AccountInfo {
     reset_at: Option<i64>,
     daily_usage: Vec<AccountDailyUsage>,
     stats_as_of: Option<String>,
+    stats_generated_at: Option<String>,
 }
 
 impl From<&StoredAccount> for AccountInfo {
@@ -264,6 +266,7 @@ impl From<&StoredAccount> for AccountInfo {
             reset_at: None,
             daily_usage: Vec::new(),
             stats_as_of: None,
+            stats_generated_at: None,
         }
     }
 }
@@ -493,6 +496,7 @@ fn parse_account_usage(payload: &Value) -> AccountUsageSnapshot {
             .map(str::to_string),
         daily_usage: Vec::new(),
         stats_as_of: None,
+        stats_generated_at: None,
     }
 }
 
@@ -631,6 +635,11 @@ async fn fetch_account_usage(
                 usage.stats_as_of = profile
                     .get("metadata")
                     .and_then(|metadata| metadata.get("stats_as_of"))
+                    .and_then(Value::as_str)
+                    .map(str::to_string);
+                usage.stats_generated_at = profile
+                    .get("metadata")
+                    .and_then(|metadata| metadata.get("generated_at"))
                     .and_then(Value::as_str)
                     .map(str::to_string);
             }
@@ -1671,6 +1680,7 @@ async fn get_codex_snapshot() -> Result<RawCodexSnapshot, String> {
             account.reset_at = usage.reset_at;
             account.daily_usage = usage.daily_usage.clone();
             account.stats_as_of = usage.stats_as_of.clone();
+            account.stats_generated_at = usage.stats_generated_at.clone();
             if usage.plan.is_some() {
                 account.plan = usage.plan.clone();
             }

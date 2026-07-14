@@ -20,6 +20,11 @@ export function dailyUsageTotals(dailyUsage, now = new Date()) {
   }, { today: 0, month: 0, hasToday: false, latestDate: null });
 }
 
+export function reportedTodayTokens(dailyUsage, now = new Date()) {
+  const totals = dailyUsageTotals(dailyUsage, now);
+  return totals.hasToday ? totals.today : null;
+}
+
 export function reportingDate(value, fallback = new Date()) {
   const date = typeof value === "string" ? value.slice(0, 10) : "";
   return /^\d{4}-\d{2}-\d{2}$/.test(date) ? new Date(`${date}T12:00:00`) : fallback;

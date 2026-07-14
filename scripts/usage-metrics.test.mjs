@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { dailyUsageTotals, reportingDate } from "../shared/usage-metrics.mjs";
+import { dailyUsageTotals, reportedTodayTokens, reportingDate } from "../shared/usage-metrics.mjs";
 
 test("treats a missing current-day bucket as pending instead of zero", () => {
   const totals = dailyUsageTotals([
@@ -22,6 +22,12 @@ test("preserves a reported zero when the current-day bucket exists", () => {
 
   assert.equal(totals.hasToday, true);
   assert.equal(totals.today, 0);
+});
+
+test("does not substitute cross-account local usage for a missing account day", () => {
+  assert.equal(reportedTodayTokens([
+    { date: "2026-07-13", tokens: 500_000_000 },
+  ], new Date(2026, 6, 14, 12)), null);
 });
 
 test("anchors a delayed chart to the reporting date", () => {

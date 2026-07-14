@@ -2,6 +2,12 @@
 
 All notable user-facing changes to Codex Deck will be documented here.
 
+## [0.1.25] - 2026-07-14
+
+- Changed account Today totals to use only that account's ChatGPT profile daily buckets, matching established multi-account tools.
+- Removed cross-account local rollout deltas from individual account totals because local session logs do not carry reliable ChatGPT account identity.
+- Added the official usage snapshot time and an explicit lag label; a missing current-day bucket now remains pending instead of being estimated.
+
 ## [0.1.24] - 2026-07-14
 
 - Fixed local Today usage incorrectly counting a newly discovered task's historical lifetime tokens as usage from the current day.
