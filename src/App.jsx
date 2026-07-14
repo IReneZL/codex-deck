@@ -49,7 +49,7 @@ const initialAccounts = [];
 
 const accountSortStorageKey = "codex-deck-account-sort-v1";
 const languageStorageKey = "codex-deck-language-v1";
-const localTodayStorageKey = "codex-deck-local-today-v1";
+const localTodayStorageKey = "codex-deck-local-today-v2";
 const monthlyPricingBasisStorageKey = "codex-deck-monthly-pricing-basis-v1";
 const themeStorageKey = "codex-deck-theme-v1";
 const windowCloseStorageKey = "codex-deck-window-close-action-v2";
@@ -691,11 +691,9 @@ export function App() {
     if (announce) setRefreshing(true);
     try {
       const snapshot = await readCodexSnapshot();
-      const observedRolloutTotal = (snapshot.rolloutTokenCounters || [])
-        .reduce((sum, counter) => sum + Math.max(0, Number(counter.totalTokens) || 0), 0);
       const nextLocalToday = updateLocalTodayObserver(
         localTodayObserverRef.current,
-        snapshot.rolloutTokenCounters?.length ? observedRolloutTotal : snapshot.localUsage?.totalTokens,
+        snapshot.rolloutTokenCounters,
         snapshot.activeAccountId,
       );
       localTodayObserverRef.current = nextLocalToday;

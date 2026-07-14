@@ -6,22 +6,25 @@ function localDateKey(now) {
   return `${year}-${month}-${day}`;
 }
 
-export function updateLocalTodayObserver(previous, totalTokens, activeAccountId, now = new Date()) {
+export function updateLocalTodayObserver(previous, rolloutCounters, activeAccountId, now = new Date()) {
   const date = localDateKey(now);
-  const total = Number(totalTokens);
-  const validTotal = Number.isFinite(total) && total >= 0 ? Math.round(total) : null;
-  const current = previous?.date === date
-    ? previous
-    : { date, lastTotal: null, accounts: {} };
-  const accounts = { ...(current.accounts || {}) };
+  const counters = Object.fromEntries((Array.isArray(rolloutCounters) ? rolloutCounters : [])
+    .map((counter) => [String(counter?.id || ""), Number(counter?.totalTokens)])
+    .filter(([id, total]) => id && Number.isFinite(total) && total >= 0)
+    .map(([id, total]) => [id, Math.round(total)]));
+  const compatiblePrevious = previous?.date === date
+    && previous.counters
+    && typeof previous.counters === "object";
+  const previousCounters = compatiblePrevious ? previous.counters : {};
+  const accounts = compatiblePrevious ? { ...(previous.accounts || {}) } : {};
 
-  if (validTotal == null) return { ...current, date, accounts };
-  if (current.lastTotal == null) return { date, lastTotal: validTotal, accounts };
-
-  const delta = Math.max(0, validTotal - Number(current.lastTotal || 0));
+  const delta = Object.entries(counters).reduce((sum, [id, total]) => {
+    if (!Object.hasOwn(previousCounters, id)) return sum;
+    return sum + Math.max(0, total - (Number(previousCounters[id]) || 0));
+  }, 0);
   if (delta > 0 && activeAccountId) {
     accounts[activeAccountId] = Math.max(0, Number(accounts[activeAccountId]) || 0) + delta;
   }
 
-  return { date, lastTotal: validTotal, accounts };
+  return { date, counters, accounts };
 }
