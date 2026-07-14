@@ -1,0 +1,44 @@
+# Dependencies and package-manager caches
+node_modules/
+.npm-cache/
+
+# Build output
+dist/
+src-tauri/target/
+target/
+tmp/
+*.log
+
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+accounts.json
+auth.json
+credentials.json
+*.token
+*.secret
+*.pem
+*.pfx
+*.p12
+*.key
+
+# Local Codex and editor state
+.codex/
+.agents/
+.vscode/
+.idea/
+
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Local QA captures. Keep only the two curated README screenshots.
+qa-*.png
+audit-*.png
+!qa-v3-option1-main.png
+!qa-v3-option1-compact.png
+vite.log
+vite-error.log
+design-qa.md

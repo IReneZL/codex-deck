@@ -1,0 +1,35 @@
+{
+  "name": "codex-deck",
+  "version": "0.1.23",
+  "private": true,
+  "description": "Lightweight Windows-first Codex multi-account controller and usage dashboard",
+  "homepage": "https://github.com/IReneZL/codex-deck#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IReneZL/codex-deck.git"
+  },
+  "bugs": {
+    "url": "https://github.com/IReneZL/codex-deck/issues"
+  },
+  "keywords": ["codex", "tauri", "windows", "multi-account", "usage-tracker"],
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node --test scripts/*.test.mjs",
+    "tauri": "tauri",
+    "desktop:dev": "tauri dev",
+    "desktop:build": "tauri build"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.11.1",
+    "@vitejs/plugin-react": "5.0.4",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "vite": "6.4.3"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.11.4"
+  }
+}
