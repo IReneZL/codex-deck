@@ -2,6 +2,10 @@
 
 All notable user-facing changes to Codex Deck will be documented here.
 
+## [0.1.26] - 2026-07-14
+
+- Added the installed app version beside Codex Deck in the main title bar so builds can be identified directly from the UI.
+
 ## [0.1.25] - 2026-07-14
 
 - Changed account Today totals to use only that account's ChatGPT profile daily buckets, matching established multi-account tools.

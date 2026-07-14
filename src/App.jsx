@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import packageInfo from "../package.json";
 
 import calendarIcon from "./assets/icons/calendar.svg";
 import checkmarkCircleIcon from "./assets/icons/checkmark-circle.svg";
@@ -1152,7 +1153,11 @@ export function App() {
     <div className={`app-root ${theme}`}>
       <section className="window-shell">
         <header className="titlebar" onPointerDown={startDrag}>
-          <div className="brand"><Icon src={codexDeckMark} size={24} /><span>Codex Deck</span></div>
+          <div className="brand">
+            <Icon src={codexDeckMark} size={24} />
+            <span>Codex Deck</span>
+            <small className="app-version">v{packageInfo.version}</small>
+          </div>
           <div className="titlebar-actions" onPointerDown={(event) => event.stopPropagation()}>
             <div className="display-switches">
               <button className="icon-button" title={t.theme} aria-label={t.theme} onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
