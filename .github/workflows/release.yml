@@ -32,5 +32,4 @@ jobs:
 
             This unsigned Windows build may trigger a SmartScreen warning. Verify the asset was downloaded from this repository.
           releaseDraft: true
-          prerelease: true
-
+          prerelease: false
